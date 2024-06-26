@@ -1,0 +1,71 @@
+html,
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.container {
+	width: 500px;
+	height: 500px;
+	background-color: white;
+	padding: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	text-align: center;
+	border: 5px solid black; /* Black border around the container */
+	display: none;
+}
+
+h1 {
+	margin-bottom: 20px;
+	color: #333;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr); /* 3 columns */
+	gap: 10px;
+}
+
+.grid-item {
+	text-align: center;
+	position: relative;
+	background-color: white;
+	padding-bottom: 10px; /* Add padding to ensure button is fully visible */
+}
+
+.grid-item img {
+	width: 100%;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.grid-item img:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.select-button {
+	margin-top: 10px;
+	padding: 5px 10px;
+	border: none;
+	background-color: #4b0082; /* Deep purple color */
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	display: block;
+	width: 100%; /* Make the button full width */
+}
+
+.select-button:hover {
+	background-color: #3a0066; /* Slightly darker deep purple for hover effect */
+}
