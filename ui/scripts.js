@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedButton !== button) {
                 button.textContent = 'Selected';
                 selectedButton = button;
-
-                $.post('http://spray-can/spray', JSON.stringify({
+                console.log(selectedButton);
+                $.post(`https://${GetParentResourceName()}/spray-selected`, JSON.stringify({
                     image: "image1.png"})
             );
             } else {
@@ -19,11 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    $('.close-button').click(function() {
+        $.post(`https://${GetParentResourceName()}/close`, JSON.stringify({
+            image: "image1.png"})
+    });
 });
 
 window.addEventListener('message', function(event) {
     let item = event.data;
-    console.log(GetParentResourceName());
+
     if (item.showUI) {
         $('.container').show();
     } else {
@@ -31,12 +36,12 @@ window.addEventListener('message', function(event) {
     }
 });
 
-fetch(`https://${GetParentResourceName()}/spray`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify({
-        itemId: 'my-item'
-    })
-}).then(resp => resp.json()).then(resp => console.log(resp));
+// fetch(`https://${GetParentResourceName()}/spray-selected`, {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'application/json; charset=UTF-8',
+//     },
+//     body: JSON.stringify({
+//         itemId: 'my-item'
+//     })
+// }).then(resp => resp.json()).then(resp => console.log(resp));
