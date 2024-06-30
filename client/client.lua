@@ -1,53 +1,98 @@
-local isDisplayed = false
+local glm = require("glm")
 
---- Toggles the display of the SprayUI and sets the NUI focus.
---- When the 'spray' command is executed, this function is called.
---- It toggles the `isDisplayed` flag to show or hide the UI, sends a message to the NUI to update the UI visibility,
+--- Registers a command 'spray' that opens the SprayUI.
+--- When the 'spray' command is executed, it sends a message to the NUI to show the UI
 --- and sets the NUI focus to true to enable user input.
 RegisterCommand('spray', function(source, args, rawInput)
-    isDisplayed = not isDisplayed
-
-    SendNUIMessage({ showUI = isDisplayed })
+    SendNUIMessage({ showUI = true })
 
     SetNuiFocus(true, true);
 end, false)
 
 --- Handles the 'spray-selected' event from the NUI.
 --- When the 'spray-selected' event is received from the NUI, this callback function is invoked.
---- It toggles the `isDisplayed` flag to hide the UI, sends a message to the NUI to hide the UI,
---- and sets the NUI focus to false to disable user input.
---- Finally, it calls the provided callback function with the string 'wooo2'.
+--- It toggles the `showUI` flag to hide the UI, sends a message to the NUI to hide the UI,
+--- sets the NUI focus to false to disable user input, and calls the `spawnSpray` function
+--- with the selected spray data.
 RegisterNUICallback('spray-selected', function(data, cb)
-    isDisplayed = not isDisplayed
-
-    SendNUIMessage({ showUI = isDisplayed })
+    SendNUIMessage({ showUI = false })
 
     SetNuiFocus(false, false);
+
+    spawnSpray(data.spray);
 
     cb('spray-selected')
 end)
 
---- Handles the closing of the SprayUI.
+--- Handles the 'close' event from the NUI.
 --- When the 'close' event is received from the NUI, this callback function is invoked.
---- It toggles the `isDisplayed` flag to hide the UI, sends a message to the NUI to hide the UI,
+--- It toggles the `showUI` flag to hide the UI, sends a message to the NUI to hide the UI,
 --- and sets the NUI focus to false to disable user input.
---- Finally, it calls the provided callback function with the string 'close'.
 RegisterNUICallback('close', function(data, cb)
-    isDisplayed = not isDisplayed
-
-    SendNUIMessage({ showUI = isDisplayed })
+    SendNUIMessage({ showUI = false })
 
     SetNuiFocus(false, false);
 
     cb('close')
 end)
 
+--- Registers a keybinding for the 'spray' command, which opens the SprayUI.
+--- The keybinding is set to the 'G' by default.
 RegisterKeyMapping('spray', 'Opens the  SprayUI', 'keyboard', 'G')
 
-local function spawnSpray(texture)
+--- Performs a raycast from the gameplay camera to a specified distance and returns the hit information.
+function RayCastGameplayCamera(distance)
+    local cameraRotation = GetGameplayCamRot(2)
+
+    local cameraCoord = GetGameplayCamCoord()
+
+    local direction = RotationToDirection(cameraRotation)
+
+    local destination =
+    {
+        x = cameraCoord.x + direction.x * distance,
+        y = cameraCoord.y + direction.y * distance,
+        z = cameraCoord.z + direction.z * distance
+    }
+
+    local a, b, c, d, e = GetShapeTestResult(StartShapeTestRay(cameraCoord.x, cameraCoord.y, cameraCoord.z, destination
+        .x, destination.y, destination.z, 1, PlayerPedId(), 4))
+
+    return b, c, d, e
+end
+
+--- Converts a rotation vector to a direction vector.
+---
+--- @param rotation table The rotation vector to convert.
+--- @return vector3 The direction vector.
+function RotationToDirection(rotation)
+    local retz = math.rad(rotation.z)
+    local retx = math.rad(rotation.x)
+
+    local absx = math.abs(math.cos(retx))
+
+    return vector3(-math.sin(retz) * absx, math.cos(retz) * absx, math.sin(retx))
+end
+
+--- Converts a rotation vector to a direction vector.
+---
+--- @param rotation table The rotation vector to convert.
+--- @return vector3 The direction vector.
+function RotationToDirection(rotation)
+    local retz = math.rad(rotation.z)
+    local retx = math.rad(rotation.x)
+
+    local absx = math.abs(math.cos(retx))
+
+    return vector3(-math.sin(retz) * absx, math.cos(retz) * absx, math.sin(retx))
+end
+
+--- Spawns a spray decal on the game world at the location the player is aiming at.
+---
+--- @param texture The texture to use for the spray decal.
+function spawnSpray(texture)
     local decal = 10030
-    local txd = "custom_decals"
-    local tx = "smile"
+    local txd = "spray-can-decals"
     local scale = vector2(0.5, 0.5)
     local decalTimeout = -1.0
 
@@ -55,7 +100,7 @@ local function spawnSpray(texture)
     local hit, pos, normal, entity = RayCastGameplayCamera(100)
     pos = pos + normal * 0.0666
 
-    local res = GetTextureResolution(txd, tx)
+    local res = GetTextureResolution(txd, texture)
     local textureSize = vector2(scale.x * (res.x / res.y), scale.y)
     local decalEPS = 1E-2
     local decalForward = -normal
@@ -67,7 +112,7 @@ local function spawnSpray(texture)
         decalRight = quat(camRot.z, glm.up()) * glm.right()
     end
 
-    PatchDecalDiffuseMap(decal, txd, tx)
+    PatchDecalDiffuseMap(decal, txd, texture)
     AddDecal(decal,
         pos.x, pos.y, pos.z,
         decalForward.x, decalForward.y, decalForward.z,

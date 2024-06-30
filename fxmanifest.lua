@@ -19,10 +19,10 @@ files {
     'ui/styles.css',
 
     -- Images
-    'images/image1.png',
-    'images/image2.png',
-    'images/image3.png',
-    'images/image4.png',
-    'images/image5.png',
-    'images/image6.png',
+    'images/spray1.png',
+    'images/spray2.png',
+    'images/spray3.png',
+    'images/spray4.png',
+    'images/spray5.png',
+    'images/spray6.png'
 }
